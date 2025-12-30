@@ -1,5 +1,6 @@
 import requests
 from src.errors.api import BinanceApiError
+from decimal import Decimal
 
 class BinanceClient:
     def __init__(self, base_url, price_url, timeout):
@@ -20,7 +21,7 @@ class BinanceClient:
             )
             response.raise_for_status()
             data = response.json()
-            return float(data['price'])
+            return Decimal(data['price'])
         except (requests.exceptions.RequestException, KeyError, ValueError) as e:
             raise BinanceApiError(f'Binance API error: {e}') from e
 

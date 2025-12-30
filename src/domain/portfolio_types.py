@@ -1,9 +1,10 @@
 from typing import TypedDict
+from decimal import Decimal
 
 class AssetDetails(TypedDict):
-    price: float
-    quantity: float
-    amount: float
+    price: Decimal
+    quantity: Decimal
+    amount: Decimal
 
 class PortfolioSnapshot(TypedDict):
     timestamp: str
