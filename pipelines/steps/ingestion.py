@@ -1,7 +1,7 @@
 from psycopg import Connection
 from src.ingestion.fetcher import PortfolioFetcher
 from src.config import settings
-from db.repositories.raw.portfolio_snaps_repository import save_snapshot_to_db
+from db.repositories.raw.portfolio_logs_repository import save_snapshot_to_db
 
 def run(conn: Connection):
     fetcher = PortfolioFetcher(settings.PORTFOLIO)
