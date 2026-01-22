@@ -1,6 +1,6 @@
 import psycopg
 from datetime import datetime
-from src.dto.portfolio_dto import PortfolioLogRow
+from src.cleaning.cleaner import CleanAssetRow
 
 _GET_MAX_SQL = """
     SELECT MAX(timestamp)
@@ -18,9 +18,19 @@ _UPSERT_SQL = """
     
 """
 
-def upsert_many(conn: psycopg.Connection, cleaned_snaps: list[PortfolioLogRow]) -> None:
+def upsert_batch(conn: psycopg.Connection, cleaned_batch: list[CleanAssetRow]) -> None:
+
+    rows = [
+        ( row.timestamp,
+            row.symbol,
+            row.price,
+            row.quantity,
+            row.amount,
+        )
+        for row in cleaned_batch
+    ]
     with conn.cursor() as cur:
-        cur.executemany(_UPSERT_SQL, cleaned_snaps)
+        cur.executemany(_UPSERT_SQL, rows)
     
 
 def get_max_ts(conn: psycopg.Connection) -> datetime | None:
