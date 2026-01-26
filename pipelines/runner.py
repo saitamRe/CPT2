@@ -1,6 +1,6 @@
 import logging
 import time
-from pipelines.steps import ingestion, clean
+from pipelines.steps import ingestion, clean, silver, gold
 from db.init.schema import get_db, ensure_all
 from src.config.logger_config import set_pipeline, set_run_id, set_step, setup_logging, get_new_run_id
 
@@ -24,6 +24,16 @@ def main() -> None:
                 
                 set_step('clean')
                 clean.run(conn)
+
+                set_step('silver')
+                silver.run(conn)
+
+                set_step('gold')
+                gold.run(conn)
+            logger.info('pipeline_end', extra={
+                'status': 'success',
+                'duration_ms': int((time.perf_counter() - t0)*1000)
+            })
     except Exception:
         logger.exception('pipeline_end', extra= {
             'status':'failed',
