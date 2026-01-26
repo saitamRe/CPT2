@@ -40,7 +40,7 @@ def _parse_ts(ts: Any) -> datetime:
     except ValueError as e:
         raise ValueError(f'Error while ts parsing. Input value was {ts!r}')
     
-def _norm_symbol(sym: str) -> str:
+def _norm_symbol(sym: Any) -> str:
     if not isinstance(sym, str):
         raise TypeError(f'Input should be the str type, got {sym!r}')
     
@@ -67,7 +67,7 @@ def _parse_decimal(n: Any, name: str) -> Decimal:
         raise ValueError(f'{name} should be non-negative, got {v!r}')
     return v
 
-def iter_clean_portfolio_snapshot(snapshots: list[PortfolioLogRow]) -> Iterator[CleanAssetRow]:
+def iter_clean_portfolio_snapshot(snapshots: Iterator[PortfolioLogRow]) -> Iterator[CleanAssetRow]:
     
     for snap in snapshots:
         yield CleanAssetRow(

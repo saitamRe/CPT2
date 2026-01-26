@@ -1,19 +1,18 @@
-from pathlib import Path
+import os
+import json
 
 # API requests 
-REQUEST_TIMEOUT = 10  # sec
+REQUEST_TIMEOUT = int(os.getenv('REQUEST_TIMEOUT'))  # sec
 
 # Base URL Binance API
-BINANCE_API_BASE = "https://data-api.binance.vision"
-PRICE_URL = '/api/v3/ticker/price'
+BINANCE_API_BASE = os.getenv('BINANCE_API_BASE')
+PRICE_URL = os.getenv('PRICE_URL')
 
 #DB
-DB_DSN = 'postgresql://postgres:050695@localhost:5432/cpt2'
+DB_DSN = os.getenv('DB_DSN')
 
-PORTFOLIO = {
-    'BTC': 0.57,
-    'ETH': 14.0,
-    'APT': 54.0
-}
+#Portfolio data
+PORTFOLIO = json.loads(os.getenv('PORTFOLIO'))
 
-CLEAN_BATCH_SIZE = 2000
+#Others
+CLEAN_BATCH_SIZE = int(os.getenv('CLEAN_BATCH_SIZE'))

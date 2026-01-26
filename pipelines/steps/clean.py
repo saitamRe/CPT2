@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def run(conn: psycopg.Connection):
     t0 = time.perf_counter()
-    logger.info('step start')
+    logger.info('clean step start')
 
     rows_read = 0
 
@@ -28,15 +28,13 @@ def run(conn: psycopg.Connection):
             n = len(one_batch)
             rows_read += n
             assets_repository.upsert_batch(conn, one_batch)
-            logger.info('batch upsert ok', 
-                        extra={
-                            'duration_ms':int((time.perf_counter() - bt)*1000),
-                            'batch_len':n,
-                            'rows_read':rows_read
-                        }
-                        )
-    except Exception:
-        logger.info('step_end', extra=
+        logger.info('clean_step_end', extra={
+            'status': 'success',
+            'duration_ms': int((time.perf_counter() - t0)*1000),
+            'rows_read': rows_read
+        })
+    except (psycopg.Error, ValueError, TypeError):
+        logger.exception('step_end', extra=
                     {
                     'status': 'failed',
                     'duration_ms': int((time.perf_counter() - t0)*1000),

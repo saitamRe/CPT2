@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from typing import Any
 from logging.handlers import RotatingFileHandler
 
-
 from contextvars import ContextVar
 
 _run_id: ContextVar[str] = ContextVar('run_id', default='-')
