@@ -1,7 +1,7 @@
 import logging
 import time
 from pipelines.steps import ingestion, clean, silver, gold
-from db.init.schema import get_db, ensure_all
+from db.init.schema import get_db, ensure_all, execute_schemas
 from src.config.logger_config import set_pipeline, set_run_id, set_step, setup_logging, get_new_run_id
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,9 @@ def main() -> None:
     try:
         with get_db() as conn:
             with conn:
+                execute_schemas(conn)
+                rows = conn.execute("select schema_name from information_schema.schemata where schema_name='raw'").fetchall()
+                logger.info("raw_schema_check", extra={"exists": bool(rows)})
                 ensure_all(conn)
 
                 set_step('ingestion')
@@ -37,7 +40,7 @@ def main() -> None:
     except Exception:
         logger.exception('pipeline_end', extra= {
             'status':'failed',
-            'duration_ms':int((time.perf_counter() - t0)),
+            'duration_ms':int((time.perf_counter() - t0)*1000),
         }, )
         raise
     
