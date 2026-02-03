@@ -26,7 +26,7 @@ class PortfolioFetcher:
             }
 
         snap: PortfolioSnapshot = {
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'timestamp': datetime.now(timezone.utc),
             'asset_details': asset_details
         }
 

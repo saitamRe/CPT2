@@ -1,13 +1,13 @@
 from datetime import datetime, timezone
 from typing import Any, Iterator
 import re
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from dataclasses import dataclass
 from src.dto.portfolio_dto import PortfolioLogRow
 
 @dataclass
 class CleanAssetRow:
-    timestamp: str
+    timestamp: datetime
     symbol: str
     price: Decimal
     quantity: Decimal
@@ -16,29 +16,15 @@ class CleanAssetRow:
 
 _SYMBOL_RE = re.compile(r'^[A-Z0-9_-]+$')
 
-#contract - naive dt-s are treated as utc ones
-def _dt_to_iso_utc(dt: datetime) -> str:
-    if not dt.tzinfo:
-        dt = dt.replace(tzinfo=timezone.utc)
-    else:
-        dt= dt.astimezone(timezone.utc)
-    return dt.replace(microsecond=0).isoformat().replace('+00:00', 'Z')
 
-def _parse_ts(ts: Any) -> datetime:
+def _ensure_ts(ts: Any) -> datetime:
     if isinstance(ts, datetime):
+        if not ts.tzinfo:
+            ts = ts.replace(tzinfo=timezone.utc)
+        else:
+            ts = ts.astimezone(timezone.utc)
         return ts
-    
-    if not isinstance(ts, str):
-        raise ValueError(f'Input should be either datetime or str, got {type(ts)}')
-    
-    s = ts.strip()
-    if s.endswith('z', 'Z'):
-        s = s[:-1] + '+00:00'
-    
-    try:
-        return datetime.fromisoformat(s)
-    except ValueError as e:
-        raise ValueError(f'Error while ts parsing. Input value was {ts!r}')
+    raise TypeError(f'ts must be datetime, got {type(ts)}')
     
 def _norm_symbol(sym: Any) -> str:
     if not isinstance(sym, str):
@@ -54,29 +40,41 @@ def _norm_symbol(sym: Any) -> str:
     
     return s
 
-def _parse_decimal(n: Any, name: str) -> Decimal:
+def _ensure_decimal(n: Any, name: str) -> Decimal:
     if isinstance(n, float):
-        raise ValueError(f'{name} should be decimal, got {n!r}')
-    try:
-        v = Decimal(n)
-    except (InvalidOperation, TypeError):
-        raise ValueError(f'{name} should be a valid number, got {n!r}')
-    if not v.is_finite():
-        raise ValueError(f'{name} should be finite, got {v!r}')  
-    if v < 0:
-        raise ValueError(f'{name} should be non-negative, got {v!r}')
-    return v
+        raise TypeError(f'float type isnt allowed for {name}, got {n!r}')
+
+    if not isinstance(n, Decimal):
+        raise TypeError(f'{name} should be decimal, got {type(n).__name__}')
+   
+    if not n.is_finite():
+        raise ValueError(f'{name} should be finite, got {n!r}')  
+    if n < 0:
+        raise ValueError(f'{name} should be non-negative, got {n!r}')
+    return n
 
 def iter_clean_portfolio_snapshot(snapshots: Iterator[PortfolioLogRow]) -> Iterator[CleanAssetRow]:
-    
+    """Lazily normalize raw portfolio snapshots.
+
+    This is a generator: it validates and converts each input row and yields
+    CleanAssetRow one by one (no buffering into a list).
+
+    Rules enforced:
+    - timestamp must be timezone-aware UTC datetime (naive is assumed UTC)
+    - symbol is stripped, uppercased, and validated against allowed pattern
+    - price/quantity/amount must be finite, non-negative Decimals (floats are rejected)
+
+    Args:
+        snapshots: Iterator of raw portfolio log rows.
+
+    Yields:
+        CleanAssetRow with normalized and validated fields.
+    """
     for snap in snapshots:
         yield CleanAssetRow(
-            timestamp=_dt_to_iso_utc(_parse_ts(snap.timestamp)),
+            timestamp=_ensure_ts(snap.timestamp),
             symbol=_norm_symbol(snap.symbol),
-            price=_parse_decimal(snap.price, 'price'),
-            quantity=_parse_decimal(snap.quantity, 'quantity'),
-            amount=_parse_decimal(snap.amount, 'amount')
-        )
-       
-    
-    
+            price=_ensure_decimal(snap.price, 'price'),
+            quantity=_ensure_decimal(snap.quantity, 'quantity'),
+            amount=_ensure_decimal(snap.amount, 'amount')
+        ) 

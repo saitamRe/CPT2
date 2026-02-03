@@ -2,13 +2,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug module",
+            "name": "Usual debug",
             "type": "debugpy",
             "request": "launch",
             "module": "pipelines.runner",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Debug Pytest",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-vv",
+                "-s"
+            ],
+            "justMyCode": false
         }
     ]
 }
