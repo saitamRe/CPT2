@@ -8,7 +8,7 @@ class AssetDetails(TypedDict):
     amount: Decimal
 
 class PortfolioSnapshot(TypedDict):
-    timestamp: str
+    timestamp: datetime
     asset_details: dict[str, AssetDetails]
 
 class PortfolioLogRow(NamedTuple):
