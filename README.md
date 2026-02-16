@@ -30,3 +30,26 @@ This project is built to practice Data Engineering fundamentals:
    DB_DSN=...
 4. Run pipeline:
    "module": "pipelines.runner"
+
+#Data Quality
+
+Dataset: raw_portfolio_logs
+Grain: 1 row = portfolio snapshot for (timestamp, symbol)
+
+Contract
+
+Required: timestamp, symbol, price, quantity, amount
+Key: (timestamp, symbol)
+Critical checks (FAIL)
+Missing required fields
+Unparseable numeric fields
+Timestamp not parseable
+Warning checks (WARN)
+Duplicate (timestamp, symbol) on raw
+Negative numeric values
+Bad symbol format
+Float numeric inputs
+Freshness
+max(timestamp) lag ≤ 15 min
+Volume
+rows_count must be > 0

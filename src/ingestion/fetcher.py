@@ -4,6 +4,8 @@ from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails
 from decimal import Decimal
 from src.config import settings
 
+
+
 class PortfolioFetcher:
     def __init__(self, portfolio: dict):
         self.portfolio = portfolio

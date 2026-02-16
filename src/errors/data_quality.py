@@ -1,0 +1,3 @@
+
+class DataQualityError(Exception):
+    pass
