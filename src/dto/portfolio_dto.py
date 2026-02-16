@@ -1,4 +1,4 @@
-from typing import TypedDict, NamedTuple, Any
+from typing import TypedDict, NamedTuple
 from decimal import Decimal
 from datetime import datetime
 

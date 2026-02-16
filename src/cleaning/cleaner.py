@@ -5,6 +5,8 @@ from decimal import Decimal
 from dataclasses import dataclass
 from src.dto.portfolio_dto import PortfolioLogRow
 
+#TODO remake according to the injestion layer changes
+#Remove checks which are not appropriate for this layer. For example inf validation should be on raw layer
 @dataclass
 class CleanAssetRow:
     timestamp: datetime

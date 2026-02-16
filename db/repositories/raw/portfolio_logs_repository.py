@@ -1,8 +1,9 @@
-from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails, PortfolioLogRow
 import psycopg
-from typing import Iterable, Iterator
-from decimal import Decimal
+from typing import Iterator
 from datetime import datetime
+
+from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails, PortfolioLogRow
+from src.ingestion.mappers import portfolio_to_rows
 
 _UPSERT_SQL = """
     INSERT INTO raw.portfolio_logs(timestamp, symbol, price, quantity, amount)
@@ -26,7 +27,7 @@ _GET_ALL_SQL = """
 """
 
 def save_snapshot_to_db(conn: psycopg.Connection, snap: PortfolioSnapshot[str, AssetDetails]):
-    rows = list(_portfolio_to_rows(snap))
+    rows : list[PortfolioLogRow] = list(portfolio_to_rows(snap))
 
     if not len(rows):
         raise ValueError('Portfolio should contain at least one row')
@@ -34,16 +35,7 @@ def save_snapshot_to_db(conn: psycopg.Connection, snap: PortfolioSnapshot[str, A
     with conn.cursor() as cur:
         cur.executemany(_UPSERT_SQL, rows)
 
-def _portfolio_to_rows(snap: PortfolioSnapshot[str, AssetDetails]) -> Iterable[PortfolioLogRow]:
 
-    for sym, item in snap['asset_details'].items():
-        yield(
-            snap['timestamp'],
-            sym,
-            Decimal(item['price']),
-            Decimal(item['quantity']),
-            Decimal(item['amount'])
-        )
 
 
 def iter_snapshots_after(conn: psycopg.Connection, ts: datetime) -> Iterator[PortfolioLogRow]:
