@@ -4,7 +4,7 @@ import logging
 from src.config import settings
 from db.repositories.raw.portfolio_logs_repository import save_snapshot_to_db
 from src.errors.data_quality import DataQualityError
-from src.ingestion.mappers import portfolio_to_rows
+from src.ingestion.mappers import iter_portfolio_to_rows
 from src.ingestion.fetcher import PortfolioFetcher
 from src.quality import runner
 from src.quality.policy import CheckSpec, Severity
@@ -27,10 +27,10 @@ RAW_SPECS = [
 def run(conn: Connection):
     fetcher = PortfolioFetcher(settings.PORTFOLIO)
     snap = fetcher.get_portfolio_value()
-    rows = portfolio_to_rows(snap)
+    rows = list(iter_portfolio_to_rows(snap))
 
     report = runner.run_raw_quality_checks('raw.portfolio_logs', list(rows), RAW_SPECS)
     log_quality_report(logger, report, step='ingestion', layer='raw')
     if not report.passed:
-        raise DataQualityError(f'Ingestion quality failed for raw.portfolio_logs {[r for r in report.failed(Severity.FAIL)]}')
-    save_snapshot_to_db(conn, snap)
+        raise DataQualityError(f'Ingestion quality failed for raw.portfolio_logs {[r.name for r in report.results]}')
+    save_snapshot_to_db(conn, rows)
