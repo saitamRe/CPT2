@@ -26,14 +26,14 @@ _GET_ALL_SQL = """
     SELECT timestamp, symbol, price, quantity, amount FROM raw.portfolio_logs
 """
 
-def save_snapshot_to_db(conn: psycopg.Connection, snap: PortfolioSnapshot[str, AssetDetails]):
-    rows : list[PortfolioLogRow] = list(portfolio_to_rows(snap))
+def save_snapshot_to_db(conn: psycopg.Connection, rows: list[PortfolioLogRow]):
 
     if not len(rows):
         raise ValueError('Portfolio should contain at least one row')
 
-    with conn.cursor() as cur:
-        cur.executemany(_UPSERT_SQL, rows)
+    with conn.transaction():
+        with conn.cursor() as cur:
+            cur.executemany(_UPSERT_SQL, rows)
 
 
 

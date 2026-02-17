@@ -2,7 +2,7 @@ from typing import Iterator
 from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails, PortfolioLogRow
 from decimal import Decimal
 
-def portfolio_to_rows(snap: PortfolioSnapshot[str, AssetDetails]) -> Iterator[PortfolioLogRow]:
+def iter_portfolio_to_rows(snap: PortfolioSnapshot[str, AssetDetails]) -> Iterator[PortfolioLogRow]:
     """
     Convert a portfolio snapshot into an iterator of log rows for persistence.
 
