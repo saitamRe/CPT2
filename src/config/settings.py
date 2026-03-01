@@ -1,6 +1,8 @@
 import os
 import json
 
+#TODO _required func to validate presense of var's values. if not - exception
+
 # API requests 
 REQUEST_TIMEOUT = int(os.getenv('REQUEST_TIMEOUT'))  # sec
 

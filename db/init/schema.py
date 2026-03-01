@@ -47,6 +47,9 @@ def ensure_gold(conn):
     execute_dir(conn, 'gold', 'indexes')
     execute_dir(conn, 'gold', 'views')
 
+def ensure_meta(conn):
+    execute_dir(conn, 'meta', 'tables')
+
 def execute_schemas(conn) -> None:
     execute_script(conn, read_sql_file(Path('db/init/01_init_schemas.sql')))
 
@@ -55,6 +58,7 @@ def ensure_all(conn) -> None:
     ensure_clean(conn)
     ensure_silver(conn)
     ensure_gold(conn)
+    ensure_meta(conn)
 
 @contextmanager
 def get_db(dsn: Optional[str] = None) -> Iterator[psycopg.Connection]:
