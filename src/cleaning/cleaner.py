@@ -55,28 +55,42 @@ def _ensure_decimal(n: Any, name: str) -> Decimal:
         raise ValueError(f'{name} should be non-negative, got {n!r}')
     return n
 
-def iter_clean_portfolio_snapshot(snapshots: Iterator[PortfolioLogRow]) -> Iterator[CleanAssetRow]:
-    """Lazily normalize raw portfolio snapshots.
 
-    This is a generator: it validates and converts each input row and yields
-    CleanAssetRow one by one (no buffering into a list).
+def clean_batch(log_rows: list[PortfolioLogRow]) -> list[CleanAssetRow]:
+        return [
+            CleanAssetRow(
+                timestamp=_ensure_ts(row.timestamp),
+                symbol=_norm_symbol(row.symbol),
+                price=_ensure_decimal(row.price, 'price'),
+                quantity=_ensure_decimal(row.quantity, 'quantity'),
+                amount=_ensure_decimal(row.amount, 'amount')
+            )
+        for row in log_rows
+        ]
+             
 
-    Rules enforced:
-    - timestamp must be timezone-aware UTC datetime (naive is assumed UTC)
-    - symbol is stripped, uppercased, and validated against allowed pattern
-    - price/quantity/amount must be finite, non-negative Decimals (floats are rejected)
+# def iter_clean_portfolio_snapshot(snapshots: Iterator[PortfolioLogRow]) -> Iterator[CleanAssetRow]:
+#     """Lazily normalize raw portfolio snapshots.
 
-    Args:
-        snapshots: Iterator of raw portfolio log rows.
+#     This is a generator: it validates and converts each input row and yields
+#     CleanAssetRow one by one (no buffering into a list).
 
-    Yields:
-        CleanAssetRow with normalized and validated fields.
-    """
-    for snap in snapshots:
-        yield CleanAssetRow(
-            timestamp=_ensure_ts(snap.timestamp),
-            symbol=_norm_symbol(snap.symbol),
-            price=_ensure_decimal(snap.price, 'price'),
-            quantity=_ensure_decimal(snap.quantity, 'quantity'),
-            amount=_ensure_decimal(snap.amount, 'amount')
-        ) 
+#     Rules enforced:
+#     - timestamp must be timezone-aware UTC datetime (naive is assumed UTC)
+#     - symbol is stripped, uppercased, and validated against allowed pattern
+#     - price/quantity/amount must be finite, non-negative Decimals (floats are rejected)
+
+#     Args:
+#         snapshots: Iterator of raw portfolio log rows.
+
+#     Yields:
+#         CleanAssetRow with normalized and validated fields.
+#     """
+#     for snap in snapshots:
+#         yield CleanAssetRow(
+#             timestamp=_ensure_ts(snap.timestamp),
+#             symbol=_norm_symbol(snap.symbol),
+#             price=_ensure_decimal(snap.price, 'price'),
+#             quantity=_ensure_decimal(snap.quantity, 'quantity'),
+#             amount=_ensure_decimal(snap.amount, 'amount')
+#         ) 

@@ -1,6 +1,5 @@
-from typing import Type
 import pytest
-from datetime import UTC, datetime, timezone, timedelta, date, tzinfo
+from datetime import datetime, timezone, timedelta, date
 from src.cleaning.cleaner import _ensure_ts, _norm_symbol, _ensure_decimal, iter_clean_portfolio_snapshot
 from decimal import Decimal
 from src.dto.portfolio_dto import PortfolioLogRow

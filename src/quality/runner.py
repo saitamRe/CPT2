@@ -21,7 +21,7 @@ class QualityReport:
     @property
     def passed(self) -> bool:
         sev = {s.name: s.severity for s in self.specs}
-        return all(r.passed and sev.get(r.name) == Severity.FAIL for r in self.results)
+        return all(r.passed for r in self.results if sev.get(r.name) == Severity.FAIL)
 
     def failed(self, severity_type: Severity) -> list[PortfolioLogRow]:
         sev = {s.name: s.severity for s in self.specs}  

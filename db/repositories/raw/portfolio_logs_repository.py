@@ -1,9 +1,9 @@
 import psycopg
-from typing import Iterator
-from datetime import datetime
 
-from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails, PortfolioLogRow
-from src.ingestion.mappers import portfolio_to_rows
+from src.dto.portfolio_dto import RawPortfolioLogRow
+
+from src.dto.portfolio_dto import PortfolioLogRow
+from db.repositories.watermarks.watermarks_repository import Watermark
 
 _UPSERT_SQL = """
     INSERT INTO raw.portfolio_logs(timestamp, symbol, price, quantity, amount)
@@ -15,37 +15,46 @@ _UPSERT_SQL = """
         amount = EXCLUDED.amount
 """
 
-_GET_AFTER_SQL = """
-    SELECT timestamp, symbol, price, quantity, amount
+_GET_AFTER_WM_SQL = """
+    SELECT id, timestamp, symbol, price, quantity, amount 
     FROM raw.portfolio_logs
-    WHERE timestamp >= %s
-    ORDER BY timestamp, symbol
+    WHERE (timestamp, id) > (%(last_ts)s, %(last_id)s)
+    ORDER BY timestamp, id
+    LIMIT %(batch_size)s
 """
 
-_GET_ALL_SQL = """
-    SELECT timestamp, symbol, price, quantity, amount FROM raw.portfolio_logs
-"""
+
 
 def save_snapshot_to_db(conn: psycopg.Connection, rows: list[PortfolioLogRow]):
+    """
 
+    """
     if not len(rows):
         raise ValueError('Portfolio should contain at least one row')
-
-    with conn.transaction():
-        with conn.cursor() as cur:
-            cur.executemany(_UPSERT_SQL, rows)
-
-
-
-
-def iter_snapshots_after(conn: psycopg.Connection, ts: datetime) -> Iterator[PortfolioLogRow]:
     with conn.cursor() as cur:
-        cur.execute(_GET_AFTER_SQL, (ts, ))
-        for row in cur:
-            yield PortfolioLogRow(*row)
+        cur.executemany(_UPSERT_SQL, rows)
 
-def iter_all_snapshots(conn: psycopg.Connection) -> Iterator[PortfolioLogRow]:
+
+def get_snapshots_after_wm(conn: psycopg.Connection, wm: Watermark, batch_size: int) -> list[RawPortfolioLogRow]:
+    """
+    Fetch a paginated batch of raw portfolio rows after the given watermark.
+
+    Uses keyset pagination on (timestamp, id) for stable ordering. The caller
+    is responsible for computing the next watermark from the last row in the
+    batch.
+
+    Args:
+        conn: Database connection.
+        wm: Watermark (last_ts, last_id) from the previous batch.
+        batch_size: Maximum number of rows to return.
+
+    Returns:
+        List of raw portfolio rows including id. Empty if no rows remain.
+    """
     with conn.cursor() as cur:
-        cur.execute(_GET_ALL_SQL)
-        for row in cur:
-            yield PortfolioLogRow(*row)
+        cur.execute(_GET_AFTER_WM_SQL, {'last_ts': wm.last_ts, 'last_id': wm.last_id, 'batch_size': batch_size})
+        raw_rows = cur.fetchall()
+        return [RawPortfolioLogRow(*row) for row in raw_rows]
+
+
+

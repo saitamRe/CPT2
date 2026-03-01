@@ -3,6 +3,7 @@ import logging
 
 from src.config import settings
 from db.repositories.raw.portfolio_logs_repository import save_snapshot_to_db
+from src.dto.portfolio_dto import PortfolioLogRow
 from src.errors.data_quality import DataQualityError
 from src.ingestion.mappers import iter_portfolio_to_rows
 from src.ingestion.fetcher import PortfolioFetcher
@@ -17,20 +18,24 @@ from src.quality.logger import log_quality_report
 
 logger = logging.getLogger(__name__)
 
+#do we need to store it here?
 RAW_SPECS = [
     CheckSpec('symbol_str_and_non_empty', Severity.FAIL, check_symbol_str_and_non_empty),
     CheckSpec('decimal_finite_non_negative', Severity.FAIL, check_decimal_finite_non_negative),
     CheckSpec('timestamp_utc_or_naive', Severity.FAIL, check_timestamp_utc_or_naive)
 ]
 
-
-def run(conn: Connection):
+def fetch_rows():
     fetcher = PortfolioFetcher(settings.PORTFOLIO)
     snap = fetcher.get_portfolio_value()
-    rows = list(iter_portfolio_to_rows(snap))
+    #TODO seems like after the refactoring i dont need iterator here anymore
+    return list(iter_portfolio_to_rows(snap))
 
-    report = runner.run_raw_quality_checks('raw.portfolio_logs', list(rows), RAW_SPECS)
+def run(conn: Connection, rows: list[PortfolioLogRow]):
+    report = runner.run_raw_quality_checks('raw.portfolio_logs', rows, RAW_SPECS)
     log_quality_report(logger, report, step='ingestion', layer='raw')
     if not report.passed:
-        raise DataQualityError(f'Ingestion quality failed for raw.portfolio_logs {[r.name for r in report.results]}')
+        raise DataQualityError(f'Ingestion quality failed for raw.portfolio_logs {[r.name for r in report.failed(Severity.FAIL)]}')
     save_snapshot_to_db(conn, rows)
+
+ 
