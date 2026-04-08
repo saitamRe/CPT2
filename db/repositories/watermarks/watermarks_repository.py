@@ -20,6 +20,7 @@ _GET_WATERMARK_SQL = """
     FOR UPDATE
 """
 
+
 @dataclass
 class Watermark:
     last_ts: datetime
@@ -27,6 +28,7 @@ class Watermark:
 
 def update_wm(conn: psycopg.Connection, step: PipelineSteps, wm: Watermark):
     with conn.cursor() as cur:
+    #Q is it safe to use now() here?
         cur.execute(_UPSERT_WATERMARK_SQL, (step, wm.last_ts, wm.last_id, datetime.now(timezone.utc)))
 
 
@@ -36,5 +38,6 @@ def get_watermark(conn: psycopg.Connection, step: str) -> tuple[datetime, int]:
             _GET_WATERMARK_SQL, 
             {'step': step}
         )
+        
         ts, id = cur.fetchone()
         return Watermark(ts, id)

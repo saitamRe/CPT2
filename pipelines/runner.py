@@ -27,6 +27,7 @@ def main() -> None:
            _ensure_db_schema(conn)
 
         set_step('ingestion')
+        #Q do we maybe need to put fetching in transaction or maybe it should be within the run method of injestion module?
         rows = ingestion.fetch_rows()
         with get_db() as conn:
             with conn.transaction():
