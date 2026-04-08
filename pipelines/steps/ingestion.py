@@ -18,7 +18,7 @@ from src.quality.logger import log_quality_report
 
 logger = logging.getLogger(__name__)
 
-#do we need to store it here?
+#TODO do we need to store specs here?
 RAW_SPECS = [
     CheckSpec('symbol_str_and_non_empty', Severity.FAIL, check_symbol_str_and_non_empty),
     CheckSpec('decimal_finite_non_negative', Severity.FAIL, check_decimal_finite_non_negative),
@@ -32,6 +32,7 @@ def fetch_rows():
     return list(iter_portfolio_to_rows(snap))
 
 def run(conn: Connection, rows: list[PortfolioLogRow]):
+    #TODO 'runner' name is confusing. Need to be changed
     report = runner.run_raw_quality_checks('raw.portfolio_logs', rows, RAW_SPECS)
     log_quality_report(logger, report, step='ingestion', layer='raw')
     if not report.passed:

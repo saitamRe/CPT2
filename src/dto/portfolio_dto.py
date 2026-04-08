@@ -3,6 +3,7 @@ from decimal import Decimal
 from datetime import datetime
 from dataclasses import dataclass
 
+
 class AssetDetails(TypedDict):
     price: Decimal
     quantity: Decimal
@@ -21,13 +22,14 @@ class PortfolioLogRow(NamedTuple):
 
 @dataclass
 class RawPortfolioLogRow:
-    id: int
+    id: int #Q do we need id here
     timestamp: datetime
     symbol: str
     price: Decimal
     quantity: Decimal
     amount: Decimal
 
+#Q is it ok to have this method in the DTO module? i dont know also if we really need rawrow and logrow
 def raw_row_to_log_raw(row: RawPortfolioLogRow) -> PortfolioLogRow:
     return PortfolioLogRow(
         timestamp=row.timestamp,

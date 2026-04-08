@@ -20,21 +20,22 @@ def run(conn: psycopg.Connection):
     rows_read = 0
 
     try:
+        #better to call it via repo. Review all the module to fix that
         wm = get_watermark(conn, step=PipelineSteps.CLEAN)
         while True:
             with conn.transaction():
                 
                 raw_rows_batch = portfolio_logs_repository.get_snapshots_after_wm(conn, wm, CLEAN_BATCH_SIZE)
                 if not raw_rows_batch:
-                    break
+                    break #Q what happens in this case? we just stop and go further in silence?
                 log_rows_batch = [raw_row_to_log_raw(row) for row in raw_rows_batch]
 
                 clean_rows = clean_batch(log_rows_batch)
                 assets_repository.upsert_batch(conn, clean_rows)
                 new_wm = Watermark(raw_rows_batch[-1].timestamp, raw_rows_batch[-1].id)
                 update_wm(conn, PipelineSteps.CLEAN, new_wm)
-            rows_read += len(raw_rows_batch)
-            wm = new_wm
+                rows_read += len(raw_rows_batch)
+                wm = new_wm
         clean_timer = time.perf_counter()
         logger.info('clean_step_end', extra={
             'status': 'success',

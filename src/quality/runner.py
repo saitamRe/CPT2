@@ -23,6 +23,7 @@ class QualityReport:
         sev = {s.name: s.severity for s in self.specs}
         return all(r.passed for r in self.results if sev.get(r.name) == Severity.FAIL)
 
+#TODO do we need property annotation here as well?
     def failed(self, severity_type: Severity) -> list[PortfolioLogRow]:
         sev = {s.name: s.severity for s in self.specs}  
 
@@ -35,7 +36,7 @@ def run_raw_quality_checks(dataset: str, rows: list[PortfolioLogRow], specs: lis
 
     for s in specs:
         r = s.fn(rows)
-
+        #TO THINK why do we change name? maybe better to fail here?
         if r.name != s.name:
             r = CheckResult(name=s.name, passed=r.passed, stats=r.stats, samples=r.samples, message=r.message)
         results.append(r)

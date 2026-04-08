@@ -1,6 +1,12 @@
+import logging
 import requests
+from src.config.settings import BINANCE_RETRY_CONFIG
 from src.errors.api import BinanceApiError
 from decimal import Decimal
+
+from src.utils.retry import run_with_retry
+
+logger = logging.getLogger(__name__)
 
 class BinanceClient:
     def __init__(self, base_url, price_url, timeout):
@@ -8,7 +14,16 @@ class BinanceClient:
         self.price_url = price_url
         self.timeout = timeout
     
-    def get_price(self, symbol:str) -> float:
+    def get_price(self, symbol: str):
+        run_with_retry(
+            self._get_price_impl,
+            step_name='binance_get_request',
+            logger=logger,
+            config=BINANCE_RETRY_CONFIG,
+            symbol=symbol
+            )
+
+    def _get_price_impl(self, symbol:str) -> float:
         symbol = symbol.strip().upper()
         if not symbol:
             raise ValueError('Symbol is empty')
