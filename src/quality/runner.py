@@ -9,6 +9,7 @@ from src.quality.policy import CheckSpec, Severity
 
 from .checks.raw_checks import CheckResult
 
+#Soon. we need to get rid from attachment to the PortfolioLogRow here. Ticket is created
 
 @dataclass(frozen=True)
 class QualityReport:

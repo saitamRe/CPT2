@@ -25,10 +25,8 @@ _GET_AFTER_WM_SQL = """
 
 
 
-def save_snapshot_to_db(conn: psycopg.Connection, rows: list[PortfolioLogRow]):
-    """
-
-    """
+def save_snapshot_to_db(conn: psycopg.Connection, rows: list[PortfolioLogRow]) -> None:
+    """Upsert a batch of portfolio log rows into raw.portfolio_logs."""
     if not len(rows):
         raise ValueError('Portfolio should contain at least one row')
     with conn.cursor() as cur:

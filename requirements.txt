@@ -4,3 +4,6 @@ psycopg[binary]>=3.1.0
 # HTTP requests
 requests>=2.31.0
 
+#Env vars
+python-dotenv>=1.2.2
+
