@@ -1,10 +1,15 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import logging
 import time
 from pipelines.steps import ingestion, clean, silver, gold
 from db.init.schema import get_db, ensure_all, execute_schemas
 from src.config.logger_config import set_pipeline, set_run_id, set_step, setup_logging, get_new_run_id
 
+
 logger = logging.getLogger(__name__)
+
 
 def _ensure_db_schema(conn):
      with conn.transaction():
@@ -27,11 +32,9 @@ def main() -> None:
            _ensure_db_schema(conn)
 
         set_step('ingestion')
-        #Q do we maybe need to put fetching in transaction or maybe it should be within the run method of injestion module?
-        rows = ingestion.fetch_rows()
         with get_db() as conn:
             with conn.transaction():
-                ingestion.run(conn, rows)
+                ingestion.run(conn)
         
         set_step('clean')
         with get_db() as conn:

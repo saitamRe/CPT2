@@ -1,6 +1,6 @@
 import logging
 import requests
-from src.config.settings import BINANCE_RETRY_CONFIG
+from src.config.settings import settings
 from src.errors.api import BinanceApiError
 from decimal import Decimal
 
@@ -15,11 +15,11 @@ class BinanceClient:
         self.timeout = timeout
     
     def get_price(self, symbol: str):
-        run_with_retry(
+        return run_with_retry(
             self._get_price_impl,
             step_name='binance_get_request',
             logger=logger,
-            config=BINANCE_RETRY_CONFIG,
+            config=settings.binance_retry_config,
             symbol=symbol
             )
 

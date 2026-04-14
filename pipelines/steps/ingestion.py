@@ -1,12 +1,12 @@
-from psycopg import Connection
+import psycopg
 import logging
 
-from src.config import settings
+from src.config.settings import settings
 from db.repositories.raw.portfolio_logs_repository import save_snapshot_to_db
-from src.dto.portfolio_dto import PortfolioLogRow
+from src.dto.portfolio_dto import PortfolioLogRow, PortfolioSnapshot
 from src.errors.data_quality import DataQualityError
-from src.ingestion.mappers import iter_portfolio_to_rows
 from src.ingestion.fetcher import PortfolioFetcher
+from src.ingestion.mappers import portfolio_to_rows
 from src.quality import runner
 from src.quality.policy import CheckSpec, Severity
 from src.quality.checks.raw_checks import(
@@ -18,21 +18,20 @@ from src.quality.logger import log_quality_report
 
 logger = logging.getLogger(__name__)
 
-#TODO do we need to store specs here?
 RAW_SPECS = [
     CheckSpec('symbol_str_and_non_empty', Severity.FAIL, check_symbol_str_and_non_empty),
     CheckSpec('decimal_finite_non_negative', Severity.FAIL, check_decimal_finite_non_negative),
     CheckSpec('timestamp_utc_or_naive', Severity.FAIL, check_timestamp_utc_or_naive)
 ]
 
-def fetch_rows():
-    fetcher = PortfolioFetcher(settings.PORTFOLIO)
+def _fetch_rows() -> list[PortfolioLogRow]:
+    fetcher = PortfolioFetcher(settings.portfolio)
     snap = fetcher.get_portfolio_value()
-    #TODO seems like after the refactoring i dont need iterator here anymore
-    return list(iter_portfolio_to_rows(snap))
+    return portfolio_to_rows(snap)
 
-def run(conn: Connection, rows: list[PortfolioLogRow]):
-    #TODO 'runner' name is confusing. Need to be changed
+def run(conn: psycopg.Connection) -> None:
+    """Fetch portfolio snapshot, run DQ checks, and persist to raw layer."""
+    rows = _fetch_rows()
     report = runner.run_raw_quality_checks('raw.portfolio_logs', rows, RAW_SPECS)
     log_quality_report(logger, report, step='ingestion', layer='raw')
     if not report.passed:

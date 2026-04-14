@@ -2,7 +2,7 @@ import psycopg
 from pathlib import Path
 from contextlib import contextmanager
 from typing import Optional, Iterator
-from src.config.settings import DB_DSN
+from src.config.settings import settings
 
 DB_ROOT_LAYERS =  Path(__file__).resolve().parents[1] / 'layers'
 
@@ -62,7 +62,7 @@ def ensure_all(conn) -> None:
 
 @contextmanager
 def get_db(dsn: Optional[str] = None) -> Iterator[psycopg.Connection]:
-    conn = psycopg.connect(dsn or DB_DSN)
+    conn = psycopg.connect(dsn or settings.db_dsn)
     try:
         yield conn
     finally:
