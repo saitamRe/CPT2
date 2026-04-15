@@ -60,15 +60,21 @@ def _ensure_decimal(n: Any, name: str) -> Decimal:
 
 
 def clean_batch(log_rows: list[PortfolioLogRow]) -> list[CleanAssetRow]:
-        return [
-            CleanAssetRow(
-                timestamp=_ensure_ts(row.timestamp),
-                symbol=_norm_symbol(row.symbol),
-                price=_ensure_decimal(row.price, 'price'),
-                quantity=_ensure_decimal(row.quantity, 'quantity'),
-                amount=_ensure_decimal(row.amount, 'amount')
-            )
+    return [
+        CleanAssetRow(
+            timestamp=_ensure_ts(row.timestamp),
+            symbol=_norm_symbol(row.symbol),
+            price=_ensure_decimal(row.price, 'price'),
+            quantity=_ensure_decimal(row.quantity, 'quantity'),
+            amount=_ensure_decimal(row.amount, 'amount')
+        )
         for row in log_rows
-        ]
+    ]
+
+
+def iter_clean_portfolio_snapshot(snapshots):
+    """Compatibility wrapper around clean_batch for streaming use."""
+    for row in snapshots:
+        yield from clean_batch([row])
              
 

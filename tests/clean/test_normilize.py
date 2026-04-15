@@ -202,8 +202,10 @@ def exploading_gen():
     raise RuntimeError("should not be touched yet")
 
 def test_iter_clean_portfolio_snapshot_laziness():
-     gen = iter_clean_portfolio_snapshot(exploading_gen())
-     with pytest.raises(RuntimeError):
+    gen = iter_clean_portfolio_snapshot(exploading_gen())
+    first = next(gen)
+    assert first.symbol == "BTC"
+    with pytest.raises(RuntimeError):
         next(gen)
 
     
