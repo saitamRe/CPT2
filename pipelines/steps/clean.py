@@ -1,13 +1,15 @@
-import psycopg
 import logging
 import time
+
+import psycopg
+
 from db.repositories.clean import assets_repository
 from db.repositories.raw import portfolio_logs_repository
+from db.repositories.watermarks.watermarks_repository import Watermark, get_watermark, update_wm
 from src.cleaning.cleaner import clean_batch
 from src.config.settings import settings
-from src.etl_meta.steps import PipelineSteps
-from db.repositories.watermarks.watermarks_repository import Watermark, get_watermark, update_wm
 from src.dto.portfolio_dto import raw_row_to_log_raw
+from src.etl_meta.steps import PipelineSteps
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +27,11 @@ def run(conn: psycopg.Connection):
         while True:
             with conn.transaction():
                 
-                raw_rows_batch = portfolio_logs_repository.get_snapshots_after_wm(conn, wm, settings.clean_batch_size)
+                raw_rows_batch = portfolio_logs_repository.get_snapshots_after_wm(
+                    conn, 
+                    wm, 
+                    settings.clean_batch_size
+                    )
                 if not raw_rows_batch:
                     logger.info('no new data for clean', extra={'wm': wm})
                     break

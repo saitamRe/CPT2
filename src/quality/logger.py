@@ -1,8 +1,16 @@
 import logging
-from src.quality.runner import QualityReport
-from src.quality.policy import Severity
 
-def log_quality_report(logger: logging.Logger, report: QualityReport, *, step: str, layer: str, sample_limit: int = 5):
+from src.quality.policy import Severity
+from src.quality.runner import QualityReport
+
+
+def log_quality_report(
+    logger: logging.Logger, 
+    report: QualityReport, *, 
+    step: str, 
+    layer: str, 
+    sample_limit: int = 5
+    ):
     logger.info(
         "quality_check_finished",
         extra={

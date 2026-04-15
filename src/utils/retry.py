@@ -1,8 +1,8 @@
 
-from dataclasses import dataclass
 import logging
-import time
 import random
+import time
+from dataclasses import dataclass
 from typing import Any, Callable, Type
 
 

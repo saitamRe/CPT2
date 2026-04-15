@@ -1,6 +1,8 @@
-import psycopg
-from datetime import datetime, timezone
 from dataclasses import dataclass
+from datetime import datetime, timezone
+
+import psycopg
+
 from src.etl_meta.steps import PipelineSteps
 
 _UPSERT_WATERMARK_SQL = """
@@ -29,7 +31,10 @@ class Watermark:
 def update_wm(conn: psycopg.Connection, step: PipelineSteps, wm: Watermark):
     with conn.cursor() as cur:
     #Q is it safe to use now() here?
-        cur.execute(_UPSERT_WATERMARK_SQL, (step, wm.last_ts, wm.last_id, datetime.now(timezone.utc)))
+        cur.execute(
+            _UPSERT_WATERMARK_SQL, 
+            (step, wm.last_ts, wm.last_id, datetime.now(timezone.utc))
+            )
 
 
 def get_watermark(conn: psycopg.Connection, step: str) -> tuple[datetime, int]:

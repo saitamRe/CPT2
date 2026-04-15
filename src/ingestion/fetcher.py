@@ -1,15 +1,19 @@
-from src.api.binance_client import BinanceClient
 from datetime import datetime, timezone
-from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails
 from decimal import Decimal
-from src.config.settings import settings
 
+from src.api.binance_client import BinanceClient
+from src.config.settings import settings
+from src.dto.portfolio_dto import AssetDetails, PortfolioSnapshot
 
 
 class PortfolioFetcher:
     def __init__(self, portfolio: dict):
         self.portfolio = portfolio
-        self.client = BinanceClient(settings.binance_api_base, settings.price_url, settings.request_timeout)
+        self.client = BinanceClient(
+            settings.binance_api_base, 
+            settings.price_url, 
+            settings.request_timeout
+            )
     
     def get_portfolio_value(self) -> PortfolioSnapshot[str, AssetDetails]:
         

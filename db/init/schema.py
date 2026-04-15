@@ -1,7 +1,9 @@
-import psycopg
-from pathlib import Path
 from contextlib import contextmanager
-from typing import Optional, Iterator
+from pathlib import Path
+from typing import Iterator, Optional
+
+import psycopg
+
 from src.config.settings import settings
 
 DB_ROOT_LAYERS =  Path(__file__).resolve().parents[1] / 'layers'

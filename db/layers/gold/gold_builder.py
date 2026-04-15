@@ -1,5 +1,6 @@
 from db.init.schema import execute_script
 
+
 def build_portfolio_daily(conn):
     sql = """
         INSERT INTO gold.portfolio_daily(date,last_ts, amount)

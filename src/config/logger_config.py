@@ -1,13 +1,12 @@
-import logging
 import json
+import logging
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
-from typing import Any
-from logging.handlers import RotatingFileHandler
-
 from contextvars import ContextVar
+from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
+from typing import Any
 
 _run_id: ContextVar[str] = ContextVar('run_id', default='-')
 _step: ContextVar[str] = ContextVar('step', default='-')
@@ -25,7 +24,9 @@ def set_pipeline(pipeline: str) -> None:
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         base: dict[str, Any] = {
-            'ts': datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(timespec='milliseconds'),
+            'ts': datetime.fromtimestamp(
+                record.created, 
+                tz=timezone.utc).isoformat(timespec='milliseconds'),
             'level': record.levelname,
             'logger': record.name,
             'msg': record.getMessage(),

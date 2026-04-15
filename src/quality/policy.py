@@ -5,6 +5,7 @@ from typing import Callable
 from src.dto.portfolio_dto import PortfolioLogRow
 from src.quality.checks.raw_checks import CheckResult
 
+
 class Severity(str, Enum):
     FAIL = 'FAIL'
     WARN = 'WARN'

@@ -1,6 +1,6 @@
-import pytest
 
 from src.utils.retry import RetryConfig
+
 
 def test_retry_config_default_values():
     config = RetryConfig()

@@ -1,5 +1,7 @@
-from src.dto.portfolio_dto import PortfolioSnapshot, AssetDetails, PortfolioLogRow
 from decimal import Decimal
+
+from src.dto.portfolio_dto import AssetDetails, PortfolioLogRow, PortfolioSnapshot
+
 
 def portfolio_to_rows(snap: PortfolioSnapshot[str, AssetDetails]) -> list[PortfolioLogRow]:
     """Converts a portfolio snapshot into a list of log rows, one per asset."""

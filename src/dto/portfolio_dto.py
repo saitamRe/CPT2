@@ -1,7 +1,7 @@
-from typing import TypedDict, NamedTuple
-from decimal import Decimal
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
+from typing import NamedTuple, TypedDict
 
 
 class AssetDetails(TypedDict):
@@ -29,7 +29,8 @@ class RawPortfolioLogRow:
     quantity: Decimal
     amount: Decimal
 
-#Q is it ok to have this method in the DTO module? i dont know also if we really need rawrow and logrow
+#Q is it ok to have this method in the DTO module? 
+#i have doubt also if we really need rawrow and logrow
 def raw_row_to_log_raw(row: RawPortfolioLogRow) -> PortfolioLogRow:
     return PortfolioLogRow(
         timestamp=row.timestamp,

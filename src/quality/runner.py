@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
-import uuid
 
 from src.dto.portfolio_dto import PortfolioLogRow
 from src.quality.policy import CheckSpec, Severity
@@ -32,16 +32,26 @@ class QualityReport:
 
         
 
-def run_raw_quality_checks(dataset: str, rows: list[PortfolioLogRow], specs: list[CheckSpec]) -> QualityReport:
+def run_raw_quality_checks(
+    dataset: str, 
+    rows: list[PortfolioLogRow], 
+    specs: list[CheckSpec]
+) -> QualityReport:
+    
     results: list[CheckResult] = []
 
     for s in specs:
         r = s.fn(rows)
         #TO THINK why do we change name? maybe better to fail here?
         if r.name != s.name:
-            r = CheckResult(name=s.name, passed=r.passed, stats=r.stats, samples=r.samples, message=r.message)
+            r = CheckResult(
+                name=s.name, 
+                passed=r.passed, 
+                stats=r.stats, 
+                samples=r.samples, 
+                message=r.message
+            )
         results.append(r)
-
 
     return QualityReport(
         dataset=dataset,

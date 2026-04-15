@@ -5,6 +5,7 @@ from typing import Any
 
 from src.dto.portfolio_dto import PortfolioLogRow
 
+
 @dataclass(frozen=True)
 class CheckResult:
     name: str
@@ -15,7 +16,11 @@ class CheckResult:
 
 def _preview_row(row: PortfolioLogRow) -> dict[str, Any]:
     return {
-        'timestamp': row.timestamp.isoformat() if isinstance(row.timestamp, datetime) else repr(row.timestamp),
+        'timestamp': (
+            row.timestamp.isoformat() 
+            if isinstance(row.timestamp, datetime) 
+            else repr(row.timestamp)
+            ),
         'symbol': row.symbol,
         'price': str(row.price),
         'quantity': str(row.quantity),
@@ -46,7 +51,10 @@ def check_symbol_str_and_non_empty(rows: list[PortfolioLogRow], sample_size: int
     )
 
 
-def check_decimal_finite_non_negative(rows: list[PortfolioLogRow], sample_size: int = 20) -> CheckResult:
+def check_decimal_finite_non_negative(
+    rows: list[PortfolioLogRow], 
+    sample_size: int = 20
+    ) -> CheckResult:
     total = 0
     bad = 0
     negative = 0
