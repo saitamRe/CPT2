@@ -10,6 +10,6 @@ def test_retry_config_default_values():
     assert config.jitter == 0.1
     assert config.backoff_factor == 1.0
     assert config.max_delay == 4.0
-    assert config.retry_exceptions == (Exception, ...)
+    assert config.retry_exceptions == (Exception, )
 
 

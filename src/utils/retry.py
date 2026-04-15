@@ -13,7 +13,7 @@ class RetryConfig:
     jitter: float = 0.1
     backoff_factor: float = 1.0
     max_delay: float = 4.0
-    retry_exceptions: tuple[Type[Exception], ...] = (Exception, )
+    retry_exceptions: tuple[Type[Exception]] = (Exception, )
 
     def __post_init__(self):
         if self.base_delay <= 0:
