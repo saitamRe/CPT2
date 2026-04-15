@@ -1,12 +1,17 @@
-from dotenv import load_dotenv
-load_dotenv()
-
-import logging
 import time
-from pipelines.steps import ingestion, clean, silver, gold
-from db.init.schema import get_db, ensure_all, execute_schemas
-from src.config.logger_config import set_pipeline, set_run_id, set_step, setup_logging, get_new_run_id
+import logging
+from dotenv import load_dotenv
+from db.init.schema import ensure_all, execute_schemas, get_db
+from pipelines.steps import clean, gold, ingestion, silver
+from src.config.logger_config import (
+     get_new_run_id,
+     set_pipeline,
+     set_run_id,
+     set_step,
+     setup_logging,
+)
 
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +20,9 @@ def _ensure_db_schema(conn):
      with conn.transaction():
         execute_schemas(conn)
         #TODO it is not ok to use conn directly here
-        rows = conn.execute("select schema_name from information_schema.schemata where schema_name='raw'").fetchall()
+        rows = conn.execute(
+            "select schema_name from information_schema.schemata where schema_name='raw'"
+            ).fetchall()
         logger.info("raw_schema_check", extra={"exists": bool(rows)})
         ensure_all(conn)
     

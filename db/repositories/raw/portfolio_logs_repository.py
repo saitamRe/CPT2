@@ -1,9 +1,7 @@
 import psycopg
 
-from src.dto.portfolio_dto import RawPortfolioLogRow
-
-from src.dto.portfolio_dto import PortfolioLogRow
 from db.repositories.watermarks.watermarks_repository import Watermark
+from src.dto.portfolio_dto import PortfolioLogRow, RawPortfolioLogRow
 
 _UPSERT_SQL = """
     INSERT INTO raw.portfolio_logs(timestamp, symbol, price, quantity, amount)
@@ -33,7 +31,11 @@ def save_snapshot_to_db(conn: psycopg.Connection, rows: list[PortfolioLogRow]) -
         cur.executemany(_UPSERT_SQL, rows)
 
 
-def get_snapshots_after_wm(conn: psycopg.Connection, wm: Watermark, batch_size: int) -> list[RawPortfolioLogRow]:
+def get_snapshots_after_wm(
+    conn: psycopg.Connection, 
+    wm: Watermark, 
+    batch_size: int
+    ) -> list[RawPortfolioLogRow]:
     """
     Fetch a paginated batch of raw portfolio rows after the given watermark.
 
@@ -50,7 +52,9 @@ def get_snapshots_after_wm(conn: psycopg.Connection, wm: Watermark, batch_size: 
         List of raw portfolio rows including id. Empty if no rows remain.
     """
     with conn.cursor() as cur:
-        cur.execute(_GET_AFTER_WM_SQL, {'last_ts': wm.last_ts, 'last_id': wm.last_id, 'batch_size': batch_size})
+        cur.execute(
+            _GET_AFTER_WM_SQL, 
+            {'last_ts': wm.last_ts, 'last_id': wm.last_id, 'batch_size': batch_size})
         raw_rows = cur.fetchall()
         return [RawPortfolioLogRow(*row) for row in raw_rows]
 

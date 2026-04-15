@@ -1,5 +1,6 @@
 from db.init.schema import execute_script
 
+
 def load_silver_asset_snapshot(conn):
     sql = """
         INSERT INTO silver.asset_snapshot(timestamp, symbol, price, quantity, amount)

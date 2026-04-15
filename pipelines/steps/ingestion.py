@@ -1,20 +1,21 @@
-import psycopg
 import logging
 
-from src.config.settings import settings
+import psycopg
+
 from db.repositories.raw.portfolio_logs_repository import save_snapshot_to_db
-from src.dto.portfolio_dto import PortfolioLogRow, PortfolioSnapshot
+from src.config.settings import settings
+from src.dto.portfolio_dto import PortfolioLogRow
 from src.errors.data_quality import DataQualityError
 from src.ingestion.fetcher import PortfolioFetcher
 from src.ingestion.mappers import portfolio_to_rows
 from src.quality import runner
-from src.quality.policy import CheckSpec, Severity
-from src.quality.checks.raw_checks import(
+from src.quality.checks.raw_checks import (
     check_decimal_finite_non_negative,
     check_symbol_str_and_non_empty,
-    check_timestamp_utc_or_naive
+    check_timestamp_utc_or_naive,
 )
 from src.quality.logger import log_quality_report
+from src.quality.policy import CheckSpec, Severity
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,10 @@ def run(conn: psycopg.Connection) -> None:
     report = runner.run_raw_quality_checks('raw.portfolio_logs', rows, RAW_SPECS)
     log_quality_report(logger, report, step='ingestion', layer='raw')
     if not report.passed:
-        raise DataQualityError(f'Ingestion quality failed for raw.portfolio_logs {[r.name for r in report.failed(Severity.FAIL)]}')
+        failed_checks = [r.name for r in report.failed(Severity.FAIL)]
+        raise DataQualityError(
+            f'Ingestion quality failed for raw.portfolio_logs {failed_checks}'
+            )
     save_snapshot_to_db(conn, rows)
 
  

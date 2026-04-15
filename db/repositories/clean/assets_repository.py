@@ -1,5 +1,7 @@
-import psycopg
 from datetime import datetime
+
+import psycopg
+
 from src.cleaning.cleaner import CleanAssetRow
 
 _GET_MAX_SQL = """

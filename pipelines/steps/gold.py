@@ -1,6 +1,8 @@
 import logging
 import time
+
 import psycopg
+
 from db.layers.gold.gold_builder import rebuild_gold
 
 logger = logging.getLogger(__name__)

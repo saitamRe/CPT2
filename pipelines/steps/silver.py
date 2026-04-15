@@ -1,6 +1,8 @@
 import logging
 import time
+
 import psycopg
+
 from db.layers.silver.silver_builder import rebuild_silver
 
 logger = logging.getLogger(__name__)

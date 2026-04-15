@@ -1,8 +1,16 @@
-import pytest
-from datetime import datetime, timezone, timedelta, date
-from src.cleaning.cleaner import _ensure_ts, _norm_symbol, _ensure_decimal, iter_clean_portfolio_snapshot
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+
+import pytest
+
+from src.cleaning.cleaner import (
+    _ensure_decimal,
+    _ensure_ts,
+    _norm_symbol,
+    iter_clean_portfolio_snapshot,
+)
 from src.dto.portfolio_dto import PortfolioLogRow
+
 
 @pytest.mark.parametrize('input, expected', 
 [
@@ -195,8 +203,6 @@ def exploading_gen():
 
 def test_iter_clean_portfolio_snapshot_laziness():
      gen = iter_clean_portfolio_snapshot(exploading_gen())
-     first = next(gen)
-
      with pytest.raises(RuntimeError):
         next(gen)
 

@@ -1,9 +1,10 @@
 import logging
-import requests
-from src.config.settings import settings
-from src.errors.api import BinanceApiError
 from decimal import Decimal
 
+import requests
+
+from src.config.settings import settings
+from src.errors.api import BinanceApiError
 from src.utils.retry import run_with_retry
 
 logger = logging.getLogger(__name__)
