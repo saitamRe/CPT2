@@ -1,5 +1,7 @@
 # Crypto Portfolio Tracker (ETL)
 
+![CI](https:/saitamRe/github.com/CPT2/actions/workflows/ci.yml/badge.svg)
+
 ETL pipeline that fetches, validates, transforms, and aggregates crypto portfolio data from the Binance API using a Medallion architecture.
 
 ---
