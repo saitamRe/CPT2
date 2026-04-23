@@ -58,6 +58,7 @@ flowchart LR
 - PostgreSQL
 - psycopg (v3)
 - Docker + Docker Compose
+- Airflow
 
 
 ---
