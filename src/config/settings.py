@@ -4,32 +4,6 @@ from dataclasses import dataclass
 
 from src.utils.retry import RetryConfig
 
-#possible future: split config on api, db and etc
-
-def require_var(var_name: str):
-    env_var = os.getenv(var_name)
-    if not env_var:
-        raise ValueError(f'{var_name} is required but not set')
-    return env_var
-
-def require_var_int(var_name: str) -> int:
-    env_var = os.getenv(var_name)
-
-    if not env_var:
-        raise ValueError(f'{var_name} is required but not set')
-    
-    try:
-        return int(env_var)
-    except ValueError:
-        raise ValueError(f'{var_name} must be integer, got {env_var}')
-    
-
-def require_json(var_name: str) -> dict:
-    val = require_var('PORTFOLIO')
-    try:
-        return json.loads(require_var('PORTFOLIO'))
-    except json.JSONDecodeError:
-        raise ValueError(f'{var_name} must be valid JSON, got {val}')
 
 @dataclass(frozen=True)
 class Settings:
@@ -103,6 +77,32 @@ class Settings:
             ),
         )
         
+#possible future: split config on api, db and etc
+
+def require_var(var_name: str):
+    env_var = os.getenv(var_name)
+    if not env_var:
+        raise ValueError(f'{var_name} is required but not set')
+    return env_var
+
+def require_var_int(var_name: str) -> int:
+    env_var = os.getenv(var_name)
+
+    if not env_var:
+        raise ValueError(f'{var_name} is required but not set')
+    
+    try:
+        return int(env_var)
+    except ValueError:
+        raise ValueError(f'{var_name} must be integer, got {env_var}')
+    
+
+def require_json(var_name: str) -> dict:
+    val = require_var('PORTFOLIO')
+    try:
+        return json.loads(require_var('PORTFOLIO'))
+    except json.JSONDecodeError:
+        raise ValueError(f'{var_name} must be valid JSON, got {val}')
 
 settings = Settings.init_config_from()
 
