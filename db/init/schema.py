@@ -3,8 +3,11 @@ from pathlib import Path
 from typing import Iterator, Optional
 
 import psycopg
+import logging
 
 from src.config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 DB_ROOT_LAYERS =  Path(__file__).resolve().parents[1] / 'layers'
 
@@ -61,6 +64,16 @@ def ensure_all(conn) -> None:
     ensure_silver(conn)
     ensure_gold(conn)
     ensure_meta(conn)
+
+def ensure_db_schema(conn):
+     with conn.transaction():
+        execute_schemas(conn)
+        #TODO probably it is not ok to use conn directly here
+        rows = conn.execute(
+            "select schema_name from information_schema.schemata where schema_name='raw'"
+            ).fetchall()
+        logger.info("raw_schema_check", extra={"exists": bool(rows)})
+        ensure_all(conn)
 
 @contextmanager
 def get_db(dsn: Optional[str] = None) -> Iterator[psycopg.Connection]:

@@ -1,6 +1,11 @@
+[project]
+name = "cpt2"
+version = "0.1.0"
+requires-python = ">=3.11"
+
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py311"
 extend-exclude = [
     ".venv",
     "__pycache__",
